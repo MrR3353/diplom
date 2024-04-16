@@ -1,0 +1,11 @@
+ | - diplom
+ |   | - .idea
+ |   | - .gitignore
+ |   | - diplom.iml
+ |   |   | - inspectionProfiles
+ |   |   | - profiles_settings.xml
+ |   |   | - Project_Default.xml
+ |   | - misc.xml
+ |   | - modules.xml
+ |   | - vcs.xml
+ |   | - workspace.xml
