@@ -3,7 +3,7 @@ import shutil
 import time
 from pathlib import Path
 from gitignore_parser import parse_gitignore
-import etobasa
+import fs_objects
 
 VCS_FOLDER = '.vcs'
 GITIGNORE = '.gitignore'

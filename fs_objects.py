@@ -4,8 +4,11 @@ import pickle
 from pathlib import Path
 from typing import Union
 
-from config import VCS_FOLDER, DATA_FOLDER
+from config import DATA_FOLDER
 
+'''
+Классы описывающие объекты файловой системы
+'''
 
 def get_sha1_hash(data: bytes) -> str:
     # Создаем объект хэша SHA-1

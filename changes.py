@@ -163,16 +163,16 @@ if __name__ == '__main__':
     # c\\\\n"""
     #     original_text = r'''A abbC'''
     #     modified_text = r'''A azC'''
-    original_text = open('test6.py', encoding='utf-8').read()
-    modified_text = open('test7.py', encoding='utf-8').read()
+    original_text = open('folder/test6.py', encoding='utf-8').read()
+    modified_text = open('folder/test7.py', encoding='utf-8').read()
     changes = get_changes_list(original_text, modified_text)
     save_changes_to_file(changes, 'changes.txt')
-    original_text = open('test7.py', encoding='utf-8').read()
-    modified_text = open('test8.py', encoding='utf-8').read()
+    original_text = open('folder/test7.py', encoding='utf-8').read()
+    modified_text = open('folder/test8.py', encoding='utf-8').read()
     changes1 = get_changes_list(original_text, modified_text)
     save_changes_to_file(changes1, 'changes2.txt')
     print('- ' * 25)
-    original_text = open('test6.py', encoding='utf-8').read()
+    original_text = open('folder/test6.py', encoding='utf-8').read()
     original_text = apply_changes(original_text, 'changes.txt')
     original_text = apply_changes(original_text, 'changes2.txt')
     print(original_text)
