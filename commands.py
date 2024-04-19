@@ -90,7 +90,7 @@ def make_commit(path=BASE_PATH, gitignore=True, print_content=True):
 
             if not obj_in_gitignore(current_path, tab, gitingore_stack):
                 if print_content:
-                    print('|   ' * (tab - 1), '| - ' if tab > 0 else '', current_path.name, sep='')
+                    print('|   ' * (tab - 1), '+ - ' if tab > 0 else '', current_path.name, sep='')
 
                 if copy:
                     # Получаем относительный путь от базового пути
@@ -375,7 +375,8 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None):
             prev_tree_copy = copy.deepcopy(prev_tree)
             walk_tree(new_tree, prev_tree_copy)
             walk_tree(prev_tree, new_tree, find_deleted=True)
-            # TODO: объект перемещен
+            # TODO: объект перемещен. Также если объкт переименован и немного изменен, будет создаваться новый файл
+            #  и удаляться старый, хотя по сути это переименование
             return changes_list
 
 
