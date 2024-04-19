@@ -18,6 +18,81 @@ def init():
     os.makedirs(DATA_FOLDER, exist_ok=True)
 
 
+def obj_in_gitignore(obj, obj_tab, gitignore_stack, gitignore):
+    '''
+    Проверяет находится ли obj в .gitignore
+    :param obj: Путь к объекту файловой системы
+    :param obj_tab: уровень вложенности объекта
+    :param gitignore_stack: список файлов gitignore и их уровней вложенности
+    :return:
+    '''
+    if not gitignore:
+        return False
+    if obj.name == VCS_FOLDER.name: # игнорируем папку репозитория
+        return True
+    for gitignore_path, tab in gitignore_stack:
+        if tab <= obj_tab:
+            matches = parse_gitignore(gitignore_path)
+            if matches(obj):
+                return True
+    return False
+
+
+def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=True):
+    '''
+    Проходится по файлам и папкам проекта и создает дерево проекта
+    :param create_tree: создавать ли дерево? (функция может быть использована просто для вывода файловой структуры)
+    :param path: путь к папке
+    :param gitignore: нужно ли игнорировать файлы
+    :param print_content: печатать ли содержимое проекта
+    :param copy: нужно ли копировать файлы целиком
+    :return: возвращает дерево проекта
+    '''
+    stack = [(path, 0)]  # путь к файлу и уровень вложенности
+    gitingore_stack = []  # файлы gitingore и их уровень вложенности
+    if path == os.getcwd():  # добавляем переход наверх для дерева проекта
+        path = Path(os.path.join('..', stack[0][0].name))
+
+    root_tree = Tree(path)  # корневое дерево
+    tree_stack = [(root_tree, 0)]  # стек деревьев (папок) и их уровней вложенности
+
+    while stack:
+        current_path, tab = stack.pop()  # берем файл и его уровень вложенности
+        while len(tree_stack) > 0 and tree_stack[-1][1] > tab:
+            tree_stack.pop()  # удаляем папки, файлы которых уже перебрали из стека
+
+        if gitignore:
+            # удаляем файл gitignore из стека, когда перебрали все файлы в его уровне вложенности
+            while len(gitingore_stack) > 0 and gitingore_stack[-1][1] > tab:
+                gitingore_stack.pop()
+
+            gitignore_path = Path.joinpath(current_path.parent, GITIGNORE)
+            if gitignore_path.exists() and (gitignore_path, tab) not in gitingore_stack:
+                gitingore_stack.append((gitignore_path, tab))
+
+        if not obj_in_gitignore(current_path, tab, gitingore_stack, gitignore):
+            if print_content:
+                print('|   ' * (tab - 1), '+ - ' if tab > 0 else '', current_path.name, sep='')
+
+            # создаем дерево проекта
+            if create_tree:
+                if current_path.name != Path(path).name:  # корневую папку игнорируем
+                    if not current_path.is_dir():
+                        file = File(current_path)
+                        tree_stack[-1][0].add_child(file)  # добавляем файл в дерево
+                    else:
+                        tree = Tree(current_path)
+                        tree_stack[-1][0].add_child(tree)  # добавляем дерево в дерево
+                        tree_stack.append((tree, tab + 1))
+
+            # если объект - папка, то добавляем его содержимое в стек
+            if current_path.is_dir():
+                subfolders = reversed(list(current_path.iterdir()))
+                for obj in subfolders:
+                    stack.append((obj, tab + 1))
+    return root_tree
+
+
 def make_commit(path=BASE_PATH, gitignore=True, print_content=True):
     '''
     Создает новый коммит.
@@ -27,102 +102,6 @@ def make_commit(path=BASE_PATH, gitignore=True, print_content=True):
     :param print_content: выводить ли дерево проекта?
     :return: новый коммит
     '''
-    def print_folder(path):
-        '''
-        Выводит файловую структуру path
-        '''
-        stack = [(Path(path), -1)]
-        while stack:
-            current_path, tab = stack.pop()
-            print('|   ' * tab, '| - ' if tab >= 0 else '', current_path.name, sep='')
-            if current_path.is_dir():
-                subfolders = reversed(list(current_path.iterdir()))
-                for obj in subfolders:
-                    stack.append((obj, tab + 1))
-
-    def obj_in_gitignore(obj, obj_tab, gitignore_stack):
-        '''
-        Проверяет находится ли obj в .gitignore
-        :param obj: Путь к объекту файловой системы
-        :param obj_tab: уровень вложенности объекта
-        :param gitignore_stack: список файлов gitignore и их уровней вложенности
-        :return:
-        '''
-        if obj.name == VCS_FOLDER.name:
-            return True
-        for gitignore_path, tab in gitignore_stack:
-            if tab <= obj_tab:
-                matches = parse_gitignore(gitignore_path)
-                if matches(obj):
-                    return True
-        return False
-
-    def iter_folder(path, gitignore=True, print_content=True, copy=False):
-        '''
-        Проходится по файлам и папкам проекта и создает коммит (снимок) проекта
-        :param path: путь к папке
-        :param gitignore: нужно ли игнорировать файлы
-        :param print_content: печатать ли содержимое проекта
-        :param copy: нужно ли копировать файлы целиком
-        :return: возвращает дерево проекта
-        '''
-        stack = [(path, 0)]  # путь к файлу и уровень вложенности
-        gitingore_stack = []  # файлы gitingore и их уровень вложенности
-        if path == os.getcwd():  # добавляем переход наверх для дерева проекта
-            path = Path(os.path.join('..', stack[0][0].name))
-
-        root_tree = Tree(path)  # корневое дерево
-        tree_stack = [(root_tree, 0)]  # стек деревьев (папок) и их уровней вложенности
-
-        while stack:
-            current_path, tab = stack.pop()  # берем файл и его уровень вложенности
-            while len(tree_stack) > 0 and tree_stack[-1][1] > tab:
-                tree_stack.pop()  # удаляем папки, файлы которых уже перебрали из стека
-
-            if gitignore:
-                # удаляем файл gitignore из стека, когда перебрали все файлы в его уровне вложенности
-                while len(gitingore_stack) > 0 and gitingore_stack[-1][1] > tab:
-                    gitingore_stack.pop()
-
-                gitignore_path = Path.joinpath(current_path.parent, GITIGNORE)
-                if gitignore_path.exists() and (gitignore_path, tab) not in gitingore_stack:
-                    gitingore_stack.append((gitignore_path, tab))
-
-            if not obj_in_gitignore(current_path, tab, gitingore_stack):
-                if print_content:
-                    print('|   ' * (tab - 1), '+ - ' if tab > 0 else '', current_path.name, sep='')
-
-                if copy:
-                    # Получаем относительный путь от базового пути
-                    relative_path = current_path.relative_to(BASE_PATH)
-                    new_path = os.path.join(VCS_FOLDER, str(relative_path))
-                    # папку проекта игнорируем и пропускаем файлы которые уже есть
-                    if current_path.name != BASE_PATH.name and not os.path.exists(new_path):
-                        if not current_path.is_dir():
-                            shutil.copy2(current_path, new_path)
-                        else:
-                            os.mkdir(new_path)
-
-                # создаем дерево проекта
-                # relative_path = current_path.relative_to(BASE_PATH)
-                if current_path.name != Path(path).name:  # корневую папку игнорируем
-                    if not current_path.is_dir():
-                        file = File(current_path)
-                        # file = File(relative_path)
-                        tree_stack[-1][0].add_child(file)  # добавляем файл в дерево
-                    else:
-                        tree = Tree(current_path)
-                        # tree = Tree(relative_path)
-                        tree_stack[-1][0].add_child(tree)  # добавляем дерево в дерево
-                        tree_stack.append((tree, tab + 1))
-
-                # если объект - папка, то добавляем его содержимое в стек
-                if current_path.is_dir():
-                    subfolders = reversed(list(current_path.iterdir()))
-                    for obj in subfolders:
-                        stack.append((obj, tab + 1))
-
-        return root_tree
 
     tree = iter_folder(path=path, gitignore=gitignore, print_content=print_content)
     return Commit(tree)
@@ -259,7 +238,7 @@ def commit_history(briefly=True):
         print('История коммитов:', *commits, sep='\n')
 
 
-def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None):
+def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore=True):
     '''
     Возвращает список кортежей изменений между old_commit_hash и new_commit_hash.
     ('+', <filename>)  добавление файла
@@ -273,7 +252,7 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None):
     changes_list = []
 
     if new_commit_hash is None:    # создаем новый коммит
-        new_commit = make_commit(path, print_content=False)
+        new_commit = make_commit(path, print_content=False, gitignore=gitignore)
     else:
         new_commit = load(os.path.join(DATA_FOLDER, new_commit_hash))
         new_commit.load()

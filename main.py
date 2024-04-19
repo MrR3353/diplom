@@ -24,9 +24,11 @@ def main(args):
     if cmd == 'remove':
         remove_repo()
         print('Репозиторий удален')
+        return
     elif cmd == 'commit':
         commit = make_commit()
         save_commit(commit)
+        return
     elif cmd == 'checkout':
         if len(args) < 3:
             print(f'Укажите хэш коммита к которому нужно вернуться:\n'
@@ -39,12 +41,22 @@ def main(args):
             restore_commit(args[2])
         else:
             restore_commit(args[2], args[3])
+        return
     elif cmd == 'history':
         commit_history(False)
+        return
     elif cmd == 'status':
         changes_list = status()
         for change in changes_list:
             print(*change)
+        return
+    elif cmd == 'tree':
+        if len(args) > 2:
+            if args[2] == '-noignore':
+                iter_folder(print_content=True, create_tree=False, gitignore=False)
+                return
+        iter_folder(print_content=True, create_tree=False)
+        return
     else:
         print(f'{cmd} не является командой vcs')
 
