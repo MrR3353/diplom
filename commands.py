@@ -28,7 +28,7 @@ def obj_in_gitignore(obj, obj_tab, gitignore_stack, gitignore):
     '''
     if not gitignore:
         return False
-    if obj.name == VCS_FOLDER.name: # игнорируем папку репозитория
+    if obj.name == VCS_FOLDER.name:  # игнорируем папку репозитория
         return True
     for gitignore_path, tab in gitignore_stack:
         if tab <= obj_tab:
@@ -251,13 +251,13 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore
     '''
     changes_list = []
 
-    if new_commit_hash is None:    # создаем новый коммит
+    if new_commit_hash is None:  # создаем новый коммит
         new_commit = make_commit(path, print_content=False, gitignore=gitignore)
     else:
         new_commit = load(os.path.join(DATA_FOLDER, new_commit_hash))
         new_commit.load()
 
-    if old_commit_hash is None:    # берем последний коммит
+    if old_commit_hash is None:  # берем последний коммит
         if not VCS_FOLDER.exists():
             print('Репозиторий еще не создан')
             return changes_list
@@ -319,7 +319,8 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore
 
                             if new_child_hash == prev_child_hash:
                                 if not find_deleted:
-                                    changes_list.append(('?', os.path.join(*tree_stack, prev_child.name), '>', os.path.join(*tree_stack, new_child.name)))
+                                    changes_list.append(('?', os.path.join(*tree_stack, prev_child.name), '>',
+                                                         os.path.join(*tree_stack, new_child.name)))
                                 found = True
                                 content_changed = False
                                 prev_tree.children.remove(prev_child)
@@ -375,32 +376,3 @@ if __name__ == '__main__':
     # restore_commit('c40c4000814c516d7ad9ed9465cf3335cbe2a1c0', '.vcs/restore')
     # commit_history(briefly=False)
     print(time.time() - start)
-
-
-'''
-+ хранение данных файлов и папок в бинарных файлах
-+ игнорирование того что в .gitignore
-+ сравнение коммитов по хэшам
-+ сравнение текстовых файлов посимвольно
-+ не сохранять информацию, совпадающую с предыдущим коммитом save_commit
-хранить блобы, файлы и деревья как отдельные бинарные файлы, с названием хэша
-в файле хранить хэш блоба
-в дереве хранить хэши файлов и деревьев
-в коммите хранить хэши дерева
-+ восстановление проекта из коммита (нужно ли изменять HEAD?) нужно ли удалять все файлы?
-+ история коммитов git log
-
-+ просмотр изменений относительно последнего коммита git status (сравниваем текущий коммит и последний)
-+ сделать бесконечный цикл и управление командами
-+ сделать через команды в терминале
-- сделать устновщик, который будет устанавливать все необходимые библиотеки и добавлять путь к vcs.bat в переменные среды
-
-- добавление отслеживаемых файлов (сейчас отслеживаются все кроме игнорируемых) git add. Нужно ли???
-- текстовые файлы обрабатывать отдельно при изменении - использовать модули changes/filechanges и хранить только изменения
-- хранить в коммите бинарные данные (чтобы не было текста)
-
-
-- создать сервер для vcs
-- связать сервер с яндекс диском
-- сделать git push
-'''
