@@ -1,36 +1,34 @@
 import sys
-from commands import *
+import textwrap
 
-commands_dict = {
-    'help': 'Информация о командах',
-    'init': 'Создание репозитория',
-    'remove': 'Удаление репозитория',
-    'commit': 'Создание коммита',
-    'checkout': 'Откат к коммиту',
-    'hist': 'История коммитов',
-    'status': 'Статус репозитория (отображает изменения)',
-    'tree': 'Вывод файлов репозитория',
-}
+from commands import *
+from translate import commands_dict, phrase
 
 
 def print_help():
-    print("Usage: vcs <command> [arguments]")
-    print('Основные команды:')
+    lang = get_config('CLIENT', 'lang')
+    print(f"{phrase['Пример'][lang]}: vcs <{phrase['команда'][lang]}> [{phrase['аргументы'][lang]}]")
+    print(phrase['Основные команды'][lang])
     for command, description in commands_dict.items():
         print(
-            f"   {command.ljust(10)} {textwrap.fill(description, width=70, initial_indent=' ' * 2, subsequent_indent=' ' * 12)}")
+            f"   {command.ljust(10)} {textwrap.fill(description[lang], width=70, initial_indent=' ' * 2, subsequent_indent=' ' * 12)}")
 
 
 def main(args):
+    try:
+        lang = get_config('CLIENT', 'lang')
+    except KeyError:
+        lang = 'ru'
+
     if len(args) < 2:
-        print(f'Укажите команду для выполнения\n'
-              f'  vcs <command> [arguments]')
+        print(f"{phrase['Укажите команду для выполнения'][lang]}\n"
+              f"{phrase['Пример'][lang]}: vcs <{phrase['команда'][lang]}> [{phrase['аргументы'][lang]}]")
         return
     cmd = args[1]
     if cmd not in commands_dict:
-        print(f'{cmd} не является командой vcs\n'
-              f'Чтобы получить справку, введите:\n'
-              f'  vcs help [arguments]')
+        print(f"{cmd} {phrase['не является командой'][lang]}\n"
+              f"{phrase['Чтобы получить справку, введите'][lang]}:\n"
+              f"{phrase['Пример'][lang]}: vcs help [{phrase['аргументы'][lang]}]")
         return
 
     if cmd == 'help':
@@ -45,30 +43,30 @@ def main(args):
         return
     elif cmd == 'init':
         if VCS_FOLDER.exists():
-            print(f'Репозиторий уже создан в {BASE_PATH}\n'
-                  f'Чтобы создать новый, сначала удалите старый:\n'
-                  f'Usage: vcs remove [arguments]')
+            print(f"{phrase['Репозиторий уже создан в'][lang]} {BASE_PATH}\n"
+                  f"{phrase['Чтобы создать новый, сначала удалите старый'][lang]}:\n"
+                  f"{phrase['Пример'][lang]}: vcs remove [{phrase['аргументы'][lang]}]")
             return
         init()
-        print(f'Создан репозиторий в {BASE_PATH}')
+        print(f"{phrase['Создан репозиторий в'][lang]} {BASE_PATH}")
         return
 
     if not VCS_FOLDER.exists():
-        print('Репозиторий еще не создан')
+        print(f"{phrase['Репозиторий еще не создан'][lang]}")
         return
 
     if cmd == 'remove':
         remove_repo()
-        print('Репозиторий удален')
+        print(f"{phrase['Репозиторий удален'][lang]}")
         return
     elif cmd == 'commit':
         commit = make_commit()
         save_commit(commit)
         return
-    elif cmd == 'checkout':
+    elif cmd == 'rollback':
         if len(args) < 3:
-            print(f'Укажите хэш коммита к которому нужно вернуться:\n'
-                  f'Usage: checkout <hash> <path>')
+            print(f"{phrase['Укажите хэш коммита к которому нужно вернуться'][lang]}:\n"
+                  f"{phrase['Пример'][lang]}: vcs rollback <{phrase['хэш'][lang]}> <{phrase['путь'][lang]}>")
             return
         # создаем коммит перед возвратом к другому коммиту (иначе не найдет изменения)
         commit = make_commit(print_content=False)
@@ -86,11 +84,21 @@ def main(args):
         for change in changes_list:
             print(*change)
         return
+    elif cmd == 'lang':
+        if len(args) < 3:
+            print(f"{phrase['Укажите используемый язык'][lang]}:\n"
+                  f"{phrase['Пример'][lang]}: vcs lang [ru/en]")
+            return
+        if args[2] in ('ru', 'en'):
+            change_config('CLIENT', 'lang', args[2])
+        else:
+            print(f"{phrase['Указан неверный язык'][lang]}: {args[2]}\n"
+                  f"{phrase['Пример'][lang]}: vcs lang [ru/en]")
+        return
 
 
 if __name__ == "__main__":
     main(sys.argv)
-
 
 '''
 + хранение данных файлов и папок в бинарных файлах
@@ -109,11 +117,12 @@ if __name__ == "__main__":
 + сделать бесконечный цикл и управление командами
 + сделать через команды в терминале
 
-- выбор языка (рус/англ)
++ выбор языка (рус/англ)
 - шифрование/дешифрование репозитория по ключу
 - Автокоммит через определённое время (при наличии изменений)
 - просмотр изменений между коммитами
 - просмотр изменений между версиями файла
+
 - Локальный сайт вместо GUI приложения. Поднимается локально сайт, в котором можно выполнять действия с репозиторием, как в консоли  
 - сделать устновщик, который будет устанавливать все необходимые библиотеки и добавлять путь к vcs.bat в переменные среды
 - текстовые файлы обрабатывать отдельно при изменении - использовать модули changes/filechanges и хранить только изменения

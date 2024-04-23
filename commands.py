@@ -2,9 +2,11 @@ import copy
 import os
 import shutil
 import time
+import configparser
 from pathlib import Path
 from gitignore_parser import parse_gitignore
 
+from translate import phrase
 from fs_objects import File, Tree, Commit, load
 from config import VCS_FOLDER, BASE_PATH, GITIGNORE, DATA_FOLDER, HEAD_PATH
 
@@ -16,7 +18,53 @@ def init():
     '''
     os.makedirs(VCS_FOLDER, exist_ok=True)
     os.makedirs(DATA_FOLDER, exist_ok=True)
+    create_config()
 
+
+def create_config():
+    # Создаем объект конфигурации
+    conf = configparser.ConfigParser()
+
+    # Добавляем секции и параметры
+    conf['CLIENT'] = {
+        'user': 'user',
+        'email': 'email',
+        'lang': 'ru'
+    }
+
+    path = Path(os.path.join(VCS_FOLDER, 'config'))
+    # Записываем конфигурационный файл
+    with open(path, 'w') as configfile:
+        conf.write(configfile)
+
+
+def change_config(section, param, value):
+    # Создаем объект конфигурации
+    conf = configparser.ConfigParser()
+
+    # Читаем существующий конфигурационный файл
+    path = Path(os.path.join(VCS_FOLDER, 'config'))
+    conf.read(path)
+    conf[section][param] = value
+
+    # Записываем изменения обратно в файл
+    with open(path, 'w') as configfile:
+        conf.write(configfile)
+
+
+def get_config(section, param):
+    conf = configparser.ConfigParser()
+
+    # Читаем существующий конфигурационный файл
+    path = Path(os.path.join(VCS_FOLDER, 'config'))
+    conf.read(path)
+
+    return conf[section][param]
+
+try:
+    lang = get_config('CLIENT', 'lang')
+except KeyError:
+    lang = 'ru'
 
 def obj_in_gitignore(obj, obj_tab, gitignore_stack, gitignore):
     '''
@@ -117,7 +165,7 @@ def save_commit(new_commit):
             file.write(new_commit.hash)
         # сохраняем коммит
         new_commit.save(DATA_FOLDER)
-        print(f'Сохранен коммит {new_commit.hash}')
+        print(f"{phrase['Сохранен коммит'][lang]} {new_commit.hash}")
     else:
         with open(head, 'r') as file:
             prev_commit_hash = file.read()
@@ -133,14 +181,14 @@ def save_commit(new_commit):
             new_commit = Commit(new_commit.tree, prev_commit_hash)
             # сохраняем коммит
             new_commit.save(DATA_FOLDER)
-            print(f'Сохранен коммит {new_commit.hash}')
+            print(f"{phrase['Сохранен коммит'][lang]} {new_commit.hash}")
             # обновляем HEAD
             with open(head, 'w') as file:
                 file.write(new_commit.hash)
         else:
             # новый коммит = предыдущий коммит
-            print(f'Коммит не создан. Нет изменений')
-            pass
+            print(f"{phrase['Коммит не создан. Нет изменений'][lang]}")
+            return
 
 
 def load_commit(commit_hash):
@@ -149,7 +197,7 @@ def load_commit(commit_hash):
     '''
     path = os.path.join(DATA_FOLDER, commit_hash)
     if not os.path.exists(path):
-        raise Exception(f'Нет коммита {commit_hash}')
+        raise Exception(f"{phrase['Нет коммита'][lang]} {commit_hash}")
     commit = load(path)
     commit.load()
     return commit
@@ -174,7 +222,7 @@ def restore_commit(commit_hash, path=BASE_PATH):
                 elif os.path.isdir(p):
                     shutil.rmtree(p)
                 else:
-                    print('Не найдено для удаления:', p)
+                    print(f"{phrase['Не найдено для удаления'][lang]}:", p)
             except FileNotFoundError as e:
                 print(e)
     for change in changes_list:
@@ -217,7 +265,7 @@ def commit_history(briefly=True):
     TODO: выводит только коммиты предыдущие для текущего (теряются другие коммиты после отката пред. коммита назад)
     '''
     if not HEAD_PATH.exists():
-        print('История коммитов пуста')
+        print(f"{phrase['История коммитов пуста'][lang]}")
     else:
         commits = []
         # добавляем последний коммит
@@ -235,7 +283,7 @@ def commit_history(briefly=True):
         commits.reverse()
         if briefly:
             commits = [commit[:6] for commit in commits]
-        print('История коммитов:', *commits, sep='\n')
+        print(f"{phrase['История коммитов'][lang]}:", *commits, sep='\n')
 
 
 def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore=True):
@@ -259,10 +307,10 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore
 
     if old_commit_hash is None:  # берем последний коммит
         if not VCS_FOLDER.exists():
-            print('Репозиторий еще не создан')
+            print(f"{phrase['Репозиторий еще не создан'][lang]}")
             return changes_list
         elif not HEAD_PATH.exists():
-            print('Коммитов еще не было')
+            print(f"{phrase['Коммитов еще не было'][lang]}")
             return changes_list
         else:
             with open(HEAD_PATH, 'r') as file:
@@ -278,7 +326,7 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore
     # делаю у коммитов одинаковых родителей, чтобы если нет изменений, совпадали хэши
     new_commit = Commit(new_commit.tree, prev_commit.parent_hash)
     if new_commit.hash == prev_commit.hash:
-        print('Изменений нет')
+        print(f"{phrase['Изменений нет'][lang]}")
         return changes_list
     else:
         # дерево проекта отличается
