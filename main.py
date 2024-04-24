@@ -1,6 +1,7 @@
 import sys
 import textwrap
 
+import crypto
 from commands import *
 from translate import commands_dict, phrase
 
@@ -95,6 +96,26 @@ def main(args):
             print(f"{phrase['Указан неверный язык'][lang]}: {args[2]}\n"
                   f"{phrase['Пример'][lang]}: vcs lang [ru/en]")
         return
+    elif cmd == 'crypt':
+        key = crypto.generate_key()
+        crypto.encrypt_folder(key, encrypt=True)
+        # crypto.encrypt_folder(key, encrypt=True, path=DATA_FOLDER)
+        print(f"{phrase['Репозиторий зашифрован, ключ'][lang]} = {key.decode()}")
+        return
+    elif cmd == 'decrypt':
+        if len(args) > 2:
+            key = args[2]
+        else:
+            try:
+                key = crypto.load_key()
+            except FileNotFoundError:
+                print(f"{phrase['Нужно указать ключ шифрования или добавить файл с ключом key'][lang]}\n"
+                      f"{phrase['Пример'][lang]}: vcs decrypt <key>")
+                return
+        crypto.encrypt_folder(key, encrypt=False)
+        # crypto.encrypt_folder(key, encrypt=False, path=DATA_FOLDER)
+        print(f"{phrase['Репозиторий расшифрован'][lang]}")
+        return
 
 
 if __name__ == "__main__":
@@ -118,7 +139,7 @@ if __name__ == "__main__":
 + сделать через команды в терминале
 
 + выбор языка (рус/англ)
-- шифрование/дешифрование репозитория по ключу
++ шифрование/дешифрование репозитория по ключу
 - Автокоммит через определённое время (при наличии изменений)
 - просмотр изменений между коммитами
 - просмотр изменений между версиями файла

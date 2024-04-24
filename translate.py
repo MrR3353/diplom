@@ -8,6 +8,8 @@ commands_dict = {
     'status': {'ru': 'Статус репозитория (отображает изменения)', 'en': 'Repository status'},
     'tree': {'ru': 'Вывод структуры файлов репозитория', 'en': 'Print repository files structure'},
     'lang': {'ru': 'Выбор языка', 'en': 'Language selection'},
+    'crypt': {'ru': 'Зашифровать репозиторий', 'en': 'Encrypt repositary'},
+    'decrypt': {'ru': 'Расшифровать репозиторий', 'en': 'Decrypt repositary'},
 }
 
 phrase = {
@@ -36,4 +38,7 @@ phrase = {
     'Коммитов еще не было': {'ru': 'Коммитов еще не было', 'en': 'There have been no commits yet'},
     'Изменений нет': {'ru': 'Изменений нет', 'en': 'No any changes'},
     'История коммитов пуста': {'ru': 'История коммитов пуста', 'en': 'Commit history is empty'},
+    'Репозиторий зашифрован, ключ': {'ru': 'Репозиторий зашифрован, ключ', 'en': 'The repository is encrypted, key'},
+    'Нужно указать ключ шифрования или добавить файл с ключом key': {'ru': 'Нужно указать ключ шифрования или добавить файл с ключом key', 'en': 'You need to specify the encryption key or add a file with the key'},
+    'Репозиторий расшифрован': {'ru': 'Репозиторий расшифрован', 'en': 'The repository is decrypted'},
 }
