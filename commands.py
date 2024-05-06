@@ -61,10 +61,12 @@ def get_config(section, param):
 
     return conf[section][param]
 
+
 try:
     lang = get_config('CLIENT', 'lang')
 except KeyError:
     lang = 'ru'
+
 
 def obj_in_gitignore(obj, obj_tab, gitignore_stack, gitignore):
     '''
@@ -119,8 +121,13 @@ def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=
                 gitingore_stack.append((gitignore_path, tab))
 
         if not obj_in_gitignore(current_path, tab, gitingore_stack, gitignore):
-            if print_content:
-                print('|   ' * (tab - 1), '+ - ' if tab > 0 else '', current_path.name, sep='')
+            # if print_content:
+            #
+            #     if len(stack) > 0 and stack[-1][1] < tab:
+            #         print(tab, stack[-1][1])
+            #         print('│   ' * (tab - 1), '└── ' if tab > 0 else '', current_path.name, sep='')
+            #     else:
+            #         print('│   ' * (tab - 1), '├── ' if tab > 0 else '', current_path.name, sep='')
 
             # создаем дерево проекта
             if create_tree:
@@ -138,6 +145,14 @@ def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=
                 subfolders = reversed(list(current_path.iterdir()))
                 for obj in subfolders:
                     stack.append((obj, tab + 1))
+
+            if print_content:
+                if len(stack) > 0 and stack[-1][1] < tab:
+                    print('│   ' * (stack[-1][1]), '└───' * (tab - stack[-1][1] - 1), '└── ' if tab > 0 else '', current_path.name, sep='')
+                elif len(stack) == 0:
+                    print('└───' * (tab - 1), '└── ' if tab > 0 else '', current_path.name, sep='')
+                else:
+                    print('│   ' * (tab - 1), '├── ' if tab > 0 else '', current_path.name, sep='')
     return root_tree
 
 
