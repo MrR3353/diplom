@@ -150,7 +150,7 @@ def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=
                 if len(stack) > 0 and stack[-1][1] < tab:   # последний объект в текущей папке
                     print('│   ' * (stack[-1][1]), '└───' * (tab - stack[-1][1] - 1), '┴── ' if (tab - stack[-1][1] - 1) > 0 else '└── ', current_path.name, sep='')
                 elif len(stack) == 0:   # последний объект в репозитории
-                    print('└───' * (tab - 1), '┴── ', current_path.name, sep='')
+                    print('└── ', current_path.name, sep='')
                 else:
                     # будет выведено по ошибке у последнего объекта, если следующий после него файл в gitignore
                     print('│   ' * (tab - 1), '├── ' if tab > 0 else '', current_path.name, sep='')
@@ -421,7 +421,7 @@ def status(path=BASE_PATH, old_commit_hash=None, new_commit_hash=None, gitignore
             walk_tree(prev_tree, new_tree, find_deleted=True)
             # TODO: объект перемещен. Также если объкт переименован и немного изменен, будет создаваться новый файл
             #  и удаляться старый, хотя по сути это переименование
-            return changes_list
+        return changes_list
 
 
 def remove_repo():
