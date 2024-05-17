@@ -11,6 +11,9 @@ commands_dict = {
     'crypt': {'ru': 'Зашифровать репозиторий', 'en': 'Encrypt repository'},
     'decrypt': {'ru': 'Расшифровать репозиторий', 'en': 'Decrypt repository'},
     'push': {'ru': 'Отправить репозиторий на сервер', 'en': 'Push repository to server'},
+    'remote': {'ru': 'Указать ссылку на удаленный репозиторий', 'en': 'Provide a link to the remote repository'},
+    'token': {'ru': 'Указать токен для работы с удаленным репозиторием', 'en': 'Provide a token to work with the remote repository'},
+    'clone': {'ru': 'Клонировать (загрузить) репозиторий', 'en': 'Clone (download) repository'},
 }
 
 phrase = {
@@ -42,4 +45,10 @@ phrase = {
     'Репозиторий зашифрован, ключ': {'ru': 'Репозиторий зашифрован, ключ', 'en': 'The repository is encrypted, key'},
     'Нужно указать ключ шифрования или добавить файл с ключом key': {'ru': 'Нужно указать ключ шифрования или добавить файл с ключом key', 'en': 'You need to specify the encryption key or add a file with the key'},
     'Репозиторий расшифрован': {'ru': 'Репозиторий расшифрован', 'en': 'The repository is decrypted'},
+    'Нужно указать ссылку для загрузки репозитория на сервер': {'ru': 'Нужно указать ссылку для загрузки репозитория на сервер', 'en': 'You need to provide a link to upload the repository to server'},
+    'Нужно указать ссылку на скачиваемый репозиторий': {'ru': 'Нужно указать ссылку на скачиваемый репозиторий', 'en': 'You must provide a link to the downloadable repository'},
+    'Нужно указать токен для загрузки репозитория на сервер': {'ru': 'Нужно указать токен для загрузки репозитория на сервер', 'en': 'You need to provide a token to upload the repository to server'},
+    'Пользователь': {'ru': 'Пользователь', 'en': 'User'},
+    'Репозиторий': {'ru': 'Репозиторий', 'en': 'Repository'},
+    'Клонировано в': {'ru': 'Клонировано в', 'en': 'Cloned into'},
 }

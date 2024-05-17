@@ -27,10 +27,10 @@ def create_config():
 
     # Добавляем секции и параметры
     conf['CLIENT'] = {
-        'username': 'test',
-        'repository_name': 'Test',
-        'token': '6f825ad2-7777-4280-b8a0-17077d4d395f',
-        'email': 'email',
+        # 'username': 'test',
+        # 'repository_name': 'Test',
+        # 'token': '6f825ad2-7777-4280-b8a0-17077d4d395f',
+        # 'email': 'email',
         'lang': 'ru'
     }
 

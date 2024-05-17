@@ -52,6 +52,17 @@ def main(args):
         init()
         print(f"{phrase['Создан репозиторий в'][lang]} {BASE_PATH}")
         return
+    elif cmd == 'clone':
+        if len(args) > 2:
+            link = args[2].split('/')
+            username = link[-3]
+            repository_name = link[-2]
+            server_api.download_and_extract_zip(username, repository_name)
+        else:
+            print(f"{phrase['Нужно указать ссылку на скачиваемый репозиторий'][lang]}\n"
+                  f"{phrase['Пример'][lang]}: vcs clone <link>")
+            return
+        return
 
     if not VCS_FOLDER.exists():
         print(f"{phrase['Репозиторий еще не создан'][lang]}")
@@ -118,10 +129,43 @@ def main(args):
         print(f"{phrase['Репозиторий расшифрован'][lang]}")
         return
     elif cmd == 'push':
-        username = get_config('CLIENT', 'username')
-        repository_name = get_config('CLIENT', 'repository_name')
-        token = get_config('CLIENT', 'token')
+        try:
+            username = get_config('CLIENT', 'username')
+            repository_name = get_config('CLIENT', 'repository_name')
+        except KeyError:
+            print(f"{phrase['Нужно указать ссылку для загрузки репозитория на сервер'][lang]}\n"
+                  f"{phrase['Пример'][lang]}: vcs remote <link>")
+            return
+        try:
+            token = get_config('CLIENT', 'token')
+        except KeyError:
+            print(f"{phrase['Нужно указать токен для загрузки репозитория на сервер'][lang]}\n"
+                  f"{phrase['Пример'][lang]}: vcs token <token>")
+            return
         server_api.send_files(f'http://127.0.0.1:8000/{username}/{repository_name}/upload', token)
+        return
+    elif cmd == 'remote':
+        if len(args) > 2:
+            link = args[2].split('/')
+            username = link[-3]
+            repository_name = link[-2]
+            print(f"{phrase['Пользователь'][lang]}: {username}\n"
+                  f"{phrase['Репозиторий'][lang]}: {repository_name}")
+            change_config('CLIENT', 'username', username)
+            change_config('CLIENT', 'repository_name', repository_name)
+        else:
+            print(f"{phrase['Нужно указать ссылку для загрузки репозитория на сервер'][lang]}\n"
+                  f"{phrase['Пример'][lang]}: vcs remote <link>")
+            return
+        return
+    elif cmd == 'token':
+        if len(args) > 2:
+            token = args[2]
+            change_config('CLIENT', 'token', token)
+        else:
+            print(f"{phrase['Нужно указать токен для загрузки репозитория на сервер'][lang]}\n"
+                  f"{phrase['Пример'][lang]}: vcs token <token>")
+            return
         return
 
 
