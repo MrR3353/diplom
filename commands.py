@@ -4,7 +4,7 @@ import shutil
 import time
 import configparser
 from pathlib import Path
-from gitignore_parser import parse_gitignore
+import gitignore_parser
 
 from translate import phrase
 from fs_objects import File, Tree, Commit, load
@@ -27,7 +27,9 @@ def create_config():
 
     # Добавляем секции и параметры
     conf['CLIENT'] = {
-        'user': 'user',
+        'username': 'test',
+        'repository_name': 'Test',
+        'token': '6f825ad2-7777-4280-b8a0-17077d4d395f',
         'email': 'email',
         'lang': 'ru'
     }
@@ -67,6 +69,26 @@ try:
 except KeyError:
     lang = 'ru'
 
+
+def parse_gitignore(full_path, base_dir=None):
+    if base_dir is None:
+        base_dir = gitignore_parser.dirname(full_path)
+    rules = []
+    with open(full_path, encoding='utf-8') as ignore_file:
+        counter = 0
+        for line in ignore_file:
+            counter += 1
+            line = line.rstrip('\n')
+            rule = gitignore_parser.rule_from_pattern(line, base_path=gitignore_parser._normalize_path(base_dir),
+                                     source=(full_path, counter))
+            if rule:
+                rules.append(rule)
+    if not any(r.negation for r in rules):
+        return lambda file_path: any(r.match(file_path) for r in rules)
+    else:
+        # We have negation rules. We can't use a simple "any" to evaluate them.
+        # Later rules override earlier rules.
+        return lambda file_path: gitignore_parser.handle_negation(file_path, rules)
 
 def obj_in_gitignore(obj, obj_tab, gitignore_stack, gitignore):
     '''
@@ -121,14 +143,6 @@ def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=
                 gitingore_stack.append((gitignore_path, tab))
 
         if not obj_in_gitignore(current_path, tab, gitingore_stack, gitignore):
-            # if print_content:
-            #
-            #     if len(stack) > 0 and stack[-1][1] < tab:
-            #         print(tab, stack[-1][1])
-            #         print('│   ' * (tab - 1), '└── ' if tab > 0 else '', current_path.name, sep='')
-            #     else:
-            #         print('│   ' * (tab - 1), '├── ' if tab > 0 else '', current_path.name, sep='')
-
             # создаем дерево проекта
             if create_tree:
                 if current_path.name != Path(path).name:  # корневую папку игнорируем

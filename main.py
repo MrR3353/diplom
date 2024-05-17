@@ -2,6 +2,7 @@ import sys
 import textwrap
 
 import crypto
+import server_api
 from commands import *
 from translate import commands_dict, phrase
 
@@ -115,6 +116,12 @@ def main(args):
         crypto.encrypt_folder(key, encrypt=False)
         # crypto.encrypt_folder(key, encrypt=False, path=DATA_FOLDER)
         print(f"{phrase['Репозиторий расшифрован'][lang]}")
+        return
+    elif cmd == 'push':
+        username = get_config('CLIENT', 'username')
+        repository_name = get_config('CLIENT', 'repository_name')
+        token = get_config('CLIENT', 'token')
+        server_api.send_files(f'http://127.0.0.1:8000/{username}/{repository_name}/upload', token)
         return
 
 

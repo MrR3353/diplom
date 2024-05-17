@@ -10,6 +10,7 @@ from config import DATA_FOLDER
 Классы описывающие объекты файловой системы
 '''
 
+
 def get_sha1_hash(data: bytes) -> str:
     # Создаем объект хэша SHA-1
     sha1_hash = hashlib.sha1()
@@ -116,6 +117,16 @@ class Tree:
                     iterate_tree(child, level + 1)
 
         iterate_tree(self)
+
+    def get_filenames(self, node=None, level=0, prev_path=''):
+        if node is None:
+            node = self
+        if isinstance(node, Tree):
+            prev_path = os.path.join(prev_path, node.name)
+            for child in node.children:
+                yield from self.get_filenames(child, level + 1, prev_path)
+        elif isinstance(node, File):
+            yield os.path.join(prev_path, node.name)
 
     def save(self, path):
         '''

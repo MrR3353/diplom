@@ -8,8 +8,9 @@ commands_dict = {
     'status': {'ru': 'Статус репозитория (отображает изменения)', 'en': 'Repository status'},
     'tree': {'ru': 'Вывод структуры файлов репозитория', 'en': 'Print repository files structure'},
     'lang': {'ru': 'Выбор языка', 'en': 'Language selection'},
-    'crypt': {'ru': 'Зашифровать репозиторий', 'en': 'Encrypt repositary'},
-    'decrypt': {'ru': 'Расшифровать репозиторий', 'en': 'Decrypt repositary'},
+    'crypt': {'ru': 'Зашифровать репозиторий', 'en': 'Encrypt repository'},
+    'decrypt': {'ru': 'Расшифровать репозиторий', 'en': 'Decrypt repository'},
+    'push': {'ru': 'Отправить репозиторий на сервер', 'en': 'Push repository to server'},
 }
 
 phrase = {
