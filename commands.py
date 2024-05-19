@@ -156,20 +156,22 @@ def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=
 
             # если объект - папка, то добавляем его содержимое в стек
             if current_path.is_dir():
-                subfolders = reversed(list(current_path.iterdir()))
+                # subfolders = reversed(list(current_path.iterdir()))
+                subfolders = [p for p in current_path.iterdir() if p.is_file()][::-1] + [p for p in current_path.iterdir() if p.is_dir()][::-1]
                 for obj in subfolders:
                     stack.append((obj, tab + 1))
 
             if print_content:
                 if len(stack) > 0 and stack[-1][1] < tab:   # последний объект в текущей папке
-                    print('│   ' * (stack[-1][1]), '└───' * (tab - stack[-1][1] - 1), '┴── ' if (tab - stack[-1][1] - 1) > 0 else '└── ', current_path.name, sep='')
+                    # print('│   ' * (stack[-1][1]), '└───' * (tab - stack[-1][1] - 1), '┴── ' if (tab - stack[-1][1] - 1) > 0 else '└── ', current_path.name, sep='')
+                    print('│   ' * (stack[-1][1]), '└───' if (tab - stack[-1][1] - 1) > 0 else '',  '┴───' * (tab - stack[-1][1] - 2), '┴── ' if (tab - stack[-1][1] - 1) > 0 else '└── ', current_path.name, sep='')
                 elif len(stack) == 0:   # последний объект в репозитории
-                    print('└── ', current_path.name, sep='')
+                    # print('└───' * (tab - 1), '└── ' if tab > 0 else '', current_path.name, sep='')
+                    print('└───' * (tab - 1), '┴── ' if (tab - 1) > 0 else '└── ', current_path.name, sep='')
                 else:
                     # будет выведено по ошибке у последнего объекта, если следующий после него файл в gitignore
                     print('│   ' * (tab - 1), '├── ' if tab > 0 else '', current_path.name, sep='')
     return root_tree
-
 
 def make_commit(path=BASE_PATH, gitignore=True, print_content=True):
     '''

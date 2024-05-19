@@ -111,7 +111,7 @@ class Tree:
 
     def print_tree(self):
         def iterate_tree(node, level=0):
-            print('|   ' * (level - 1), '| - ' if level > 0 else '', str(node.name), sep='')
+            print('│   ' * (level - 1), '│── ' if level > 0 else '', str(node.name), sep='')
             if type(node) == Tree:
                 for child in node.children:
                     iterate_tree(child, level + 1)
