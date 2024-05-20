@@ -116,7 +116,7 @@ def main(args):
         return
     elif cmd == 'decrypt':
         if len(args) > 2:
-            key = args[2]
+            key = bytes(args[2].encode())
         else:
             try:
                 key = crypto.load_key()
