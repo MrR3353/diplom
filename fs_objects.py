@@ -10,7 +10,6 @@ from config import DATA_FOLDER
 Классы описывающие объекты файловой системы
 '''
 
-
 def get_sha1_hash(data: bytes) -> str:
     # Создаем объект хэша SHA-1
     sha1_hash = hashlib.sha1()
