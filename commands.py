@@ -130,6 +130,10 @@ def iter_folder(path=BASE_PATH, gitignore=True, print_content=True, create_tree=
 
     while stack:
         current_path, tab = stack.pop()  # берем файл и его уровень вложенности
+
+        if '~$' in str(current_path): # пропускаем временные файлы
+            continue
+
         while len(tree_stack) > 0 and tree_stack[-1][1] > tab:
             tree_stack.pop()  # удаляем папки, файлы которых уже перебрали из стека
 

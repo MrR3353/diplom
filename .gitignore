@@ -160,3 +160,4 @@ cython_debug/
 .idea/
 endless_cycle.py
 work.py
+.git

@@ -12,7 +12,7 @@ from config import BASE_PATH
 from translate import phrase
 
 
-def print_progress_bar(iteration, total, start_time, prefix='', suffix='', decimals=1, length=50, fill='█'):
+def print_progress_bar(iteration, total, start_time, prefix='', suffix='', decimals=1, length=30, fill='█'):
     """
     Call in a loop to create a progress bar in the console with a timer.
 
@@ -74,7 +74,7 @@ def send_files(url, token, path=BASE_PATH):
         except Exception as e:
             print(e)
             return
-        print_progress_bar(i + 1, total_tasks, start_time, prefix='Progress:', suffix='Complete', length=50)
+        print_progress_bar(i + 1, total_tasks, start_time, prefix='Progress:', suffix='Complete', length=40)
 
 
 def download_and_extract_zip(username, repository_name, token=None, folder_path=None):
